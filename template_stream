@@ -1,0 +1,167 @@
+require 'herorealms'
+require 'decks'
+require 'stdlib'
+require 'stdcards'
+require 'hardai'
+
+-- The function order does not matter (the script will run regardless of how you order things), but I tend to follow the basic order that was provided in WWG examples. Here we are doing it in order of how we plan on talking through things on stream.
+function setupGame(g)
+    registerCards(g, {
+
+    })
+
+    standardSetup(g, {
+        description = 
+        ai = 
+        randomOrder = 
+        opponents = { { plid1, plid2 } },
+        noTradeDeck = 
+        noFireGems =
+        players = {
+            {
+               
+                id = plid1,
+                name = "DeebleDoobz",
+                avatar = "wolf_shaman",
+                health = 55,
+                maxHealth = 55,
+                cards = {
+                    deck = {
+                        { qty = , card =  },
+                        { qty = , card =  },
+                        { qty = , card =  },
+                        { qty = , card =  },
+                        { qty = , card = },
+                        { qty = , card = },
+                        { qty = , card =  },
+                        { qty = , card = },
+                    },
+
+                    skills = {
+                        { qty = , card = },
+                        { qty = , card = },
+                        { qty = , card = },
+
+                    },
+                    buffs = {
+                        drawCardsAtTurnEndDef(),
+                        discardCardsAtTurnStartDef(),
+                        fatigueCount(40, 1, "FatigueP2")
+                    }
+                }
+            },
+            {
+
+                id = plid2,
+                isAi = true,
+                name = "AC13",
+                avatar = "the_wolf_tribe",
+                health = 75,
+                maxHealth = 75,
+                cards = {
+                    deck = {
+                        { qty = 1, card = ruby_carddef() },
+                        { qty = 4, card = gold_carddef() },
+                        { qty = 1, card = wizard_spell_components_carddef() },
+                        { qty = 1, card = ranger_snake_pet_carddef() },
+                        { qty = 2, card = wizard_ignite_carddef() },
+                        { qty = 1, card = wizard_silverskull_amulet_carddef() },
+                        { qty = 1, card = wizard_arcane_wand_carddef() },
+                        { qty = 1, card = wizard_magic_mirror_carddef() },
+                        { qty = 1, card = wondrous_wand_carddef() }
+
+                    },
+                    skills = {
+                        { qty = 1, card = wizard_runic_robes_carddef() },
+                        { qty = 1, card = wizard_pure_channel_carddef() },
+                        { qty = 1, card = wizard_explosive_fireball_carddef() }
+                    },
+                    buffs = {
+                        drawCardsAtTurnEndDef(),
+                        discardCardsAtTurnStartDef(),
+                        fatigueCount(40, 1, "FatigueP2")
+                    }
+                }
+            }
+        }
+    })
+end
+
+
+function endGame(g)
+end
+
+
+
+function 
+    return 
+            name = 
+            types = { },
+            acquireCost = 
+            cardTypeLabel = "Item",
+            playLocation = castPloc,
+            abilities = {
+                createAbility(
+                    {
+                        id = 
+                        trigger = autoTrigger,
+                        prompt = showPrompt,
+                        effect = 
+                                {
+                                    desc = 
+                                    min = 
+                                    max = 
+                                    validTargets = 
+                                    targetEffect = 
+                                 }),
+                            
+                    }),
+                },
+
+            layout = createLayout(
+                {
+                       name = 
+                       art = 
+                       frame = 
+                       text = '<size=170%><line-height=75%><sprite name=\"combat_1\"> <sprite name=\"gold_1\"><sprite name=\"health_1\"></line-height></size> \n<size=75%><line-height=100%><voffset=1.5em>Sacrifice a card in your \n hand or discard pile.</size></line-height>'
+                }),
+    })
+end
+
+function bless_of_silence_carddef()
+    local cardLayout = createLayout({
+        name = "Bless of Silence",
+        art = "icons/cleric_bless_the_flock",
+        frame = "frames/Cleric_CardFrame",
+        text = "<size=400%><line-height=0%><voffset=-.5em> <pos=-75%><sprite name=\"expend_2\"></size><line-height=100%> \n <voffset=2em><size=100%><pos=10%>Gain <sprite name=\"health_3\">\n Sacrifice a \n card in the \n market row."
+    })
+
+
+    return createSkillDef({
+        id = "bless_of_silence_skill",
+        name = "Bless of Silence",
+        types = { skillType },
+        layout = cardLayout,
+        layoutPath = "icons/cleric_bless_the_flock",
+        abilities = {
+            createAbility({
+                id = "bless_of_silence_ab",
+                trigger = uiTrigger,
+                activations = singleActivation,
+                layout = cardLayout,
+                effect = gainHealthEffect(3).seq(pushTargetedEffect({
+					desc = "Sacrifice a card in the Market Row.",
+					min = 0,
+					max = 1,
+					validTargets = selectLoc(centerRowLoc),
+					targetEffect = sacrificeTarget(),
+				})),
+                -- This is the cost to use the card. Since it is a skill it costs 2 gold.
+                cost = goldCost(2),
+            }),
+        }
+        
+    })
+end
+
+
