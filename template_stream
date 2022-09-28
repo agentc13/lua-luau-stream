@@ -27,13 +27,13 @@ function setupGame(g)
                 maxHealth = 55,
                 cards = {
                     deck = {
-                        { qty = , card =  },
-                        { qty = , card =  },
-                        { qty = , card =  },
-                        { qty = , card =  },
                         { qty = , card = },
                         { qty = , card = },
-                        { qty = , card =  },
+                        { qty = , card = },
+                        { qty = , card = },
+                        { qty = , card = },
+                        { qty = , card = },
+                        { qty = , card = },
                         { qty = , card = },
                     },
 
@@ -156,7 +156,6 @@ function bless_of_silence_carddef()
 					validTargets = selectLoc(centerRowLoc),
 					targetEffect = sacrificeTarget(),
 				})),
-                -- This is the cost to use the card. Since it is a skill it costs 2 gold.
                 cost = goldCost(2),
             }),
         }
