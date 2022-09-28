@@ -1,6 +1,3 @@
----@diagnostic disable: undefined-global, lowercase-global
-
-
 function gold_carddef()
     return createDef({
         id = "gold",
