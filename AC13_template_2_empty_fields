@@ -5,7 +5,8 @@ require 'stdlib'
 require 'stdcards'
 require 'hardai'
 
--- The function order does not matter (the script will run regardless of how you order things), but I tend to follow the basic order that was provided in WWG examples. Here we are doing it in order of how we plan on talking through things on stream.
+-- The function order does not matter (the script will run regardless of how you order things), but I tend to follow the basic order that was provided in WWG examples. Here we are doing it in order of how we plan on talking through things on stream. So the function setupGame is first because we will start with putting existing cards into the deck.
+
 function setupGame(g)
     registerCards(g, {
 
@@ -128,7 +129,7 @@ function
                 }),
     })
 end
-
+-- I will be talking through what everything does here, but we won't write out the lines of code like we did with the sacrificial mace.
 function bless_of_silence_carddef()
     local cardLayout = createLayout({
         name = "Bless of Silence",

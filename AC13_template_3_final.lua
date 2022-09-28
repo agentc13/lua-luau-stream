@@ -1,124 +1,28 @@
--- These are parts of the game code that are required to run the script.  I believe this means that you require the code from herorealms, the deck setup, stdlib (standard library?), stdcards (standard cards form HR), and the ai difficulty (here we only have the hardai, which is used for p2, but there are other options available as well).  I only included the stuff we are using for this script for this ai.
+-- These are parts of the game code that are required to run the script. I only included the stuff we are using for this script for this ai.
 require 'herorealms'
 require 'decks'
 require 'stdlib'
 require 'stdcards'
 require 'hardai'
 
+-- We are going to start off by adding cards to the players' decks. So we will put the setupGame function first for this.  The order of the functions does not matter as far as I know for anything in the lua scripting, but I tend to follow the format of the WWG examples where the custom cards are scripted, then the setupGame stuff happens.
 
-function sacrificial_mace_carddef()
-    -- Talk about brackets,parenthesis here.  They can be on the same line or on their own.
-    return createDef({
-            -- Unique id for card, this must be different for each card/function.
-            id = "sacrificial_mace",
-            -- Name displayed on the card
-            name = "Sacrificial Mace",
-            types = {weaponType, noStealType, thiefType, clericType, itemType, magicWeaponType, meleeWeaponType, maceType},
-            acquireCost = 0,
-            -- the next two lines of code make it an item and say that it gets played to the normal play location.
-            cardTypeLabel = "Item",
-            playLocation = castPloc,
-            -- This is where we write the abilities (trigger/effect) for the card.
-            abilities = {
-                createAbility(
-                    {
-                        --unique id for ability
-                        id = "sacrificial_mace_ab",
-                        -- triggers when played
-                        trigger = autoTrigger,
-                        -- Prompt to select sacrifice (see desc)
-                        prompt = showPrompt,
-                        -- Make sure to discuss sequencing here!!!
-                        effect = gainCombatEffect(1).seq(gainGoldEffect(1)).seq(gainHealthEffect(1)).seq(pushTargetedEffect
-                                {
-                                    -- Because this is a pushTargetEffect, this is the text that displays when you choose what card to sacrifice.
-                                    desc = "Sacrifice a card from your hand or discard pile.",
-                                    -- Minimum number of targets.
-                                    min = 0,
-                                    -- Maximum nomber of targets.
-                                    max = 1,
-                                    -- make sure to discuss .union and the different ways to write these locations and that they can't mix.
-                                    -- This code describes what can be targeted by the sacrifice effect.
-                                    validTargets = selectLoc(loc(currentPid,discardPloc)).union(selectLoc(loc(currentPid, handPloc))),
-                                    -- This is the actual sacrifice effect.
-                                    targetEffect = sacrificeTarget(),
-                                 }),
-                            
-                    }),
-                },
-            -- This is the part of the code to do the card layout.
-            layout = createLayout(
-                {
-                        -- Card name
-                       name = "Sacrificial Mace",
-                       -- This is the art that appears on the card.
-                       -- There are limited art assets at this time, so unfortunately we will have to use one of those even if it's not what we really want to have here.
-                       art = "art/T_Influence",
-                       -- This is the frame of the card. The artwork around the edges.
-                       frame = "frames/Cleric_CardFrame",
-                       -- This is the text/icon arrangement on the card.  
-                       -- This part is usually a lot of trial and error for me to get it how I want. 
-                       text = '<size=170%><line-height=75%><sprite name=\"combat_1\"> <sprite name=\"gold_1\"><sprite name=\"health_1\"></line-height></size> \n<size=75%><line-height=100%><voffset=1.5em>Sacrifice a card in your \n hand or discard pile.</size></line-height>'
-                }),
-    })
-end
-
-function bless_of_silence_carddef()
-    -- This is the layour for the skill card.  It is pretty much the same as the item card we made, but will need to be written so that it does what we want and describes what the skill does.
-    local cardLayout = createLayout({
-        name = "Bless of Silence",
-        art = "icons/cleric_bless_the_flock",
-        frame = "frames/Cleric_CardFrame",
-        -- the \n is a line break.
-        text = "<size=400%><line-height=0%><voffset=-.5em> <pos=-75%><sprite name=\"expend_2\"></size><line-height=100%> \n <voffset=2em><size=100%><pos=10%>Gain <sprite name=\"health_3\">\n Sacrifice a \n card in the \n market row."
-    })
-
-    -- This creates a skill (as opposed to an action or item).  It has things preset so we don't need to the cardTypeLabel/playLocation, those are already defined in the createSkillDef.
-    return createSkillDef({
-        id = "bless_of_silence_skill",
-        name = "Bless of Silence",
-        types = { skillType },
-        -- This refers to the layout we made above.  I don't believe it matters if the layout is done before or after the createSkillDef. As lon as it is encapsulated within the carddef it will work.  This is a 'local' variable that is only able to be called within the same function.  It only needs a unique name within the function as opposed to within the script as a whole.
-        layout = cardLayout,
-        -- This is the art for the skill icon next to your player avatar.
-        layoutPath = "icons/cleric_bless_the_flock",
-        abilities = {
-            createAbility({
-                id = "bless_of_silence_ab",
-                -- This trigger requires you to select the skill to use it (as opposed to happening automatically when played) since you don't actually 'play' this card from your hand.
-                trigger = uiTrigger,
-                -- This says that it can only be activated once per turn as opposed to multiple activations.
-                activations = singleActivation,
-                layout = cardLayout,
-                -- The skills effect.  This gains 3 health and sacrifices a card from the market row.
-                effect = gainHealthEffect(3).seq(pushTargetedEffect({
-					desc = "Sacrifice a card in the Market Row.",
-					min = 0,
-					max = 1,
-                    -- Like the targeted effect in the item card we made, this sets the valid target to a card in the market row.
-					validTargets = selectLoc(centerRowLoc),
-					targetEffect = sacrificeTarget(),
-				})),
-                -- This is the cost to use the card. Since it is a skill it costs 2 gold.
-                cost = goldCost(2),
-            }),
-        }
-        
-    })
-end
-
+-- This is required to set up the game structure (players/cards/etc) for the script.
 function setupGame(g)
+    -- Any NEW cards you are adding to the game need to be registered here. Custom versions of existing cards do not need registered here.
     registerCards(g, {
         sacrificial_mace_carddef(),
         bless_of_silence_carddef(),
     })
-
+    -- We will be using the standard setup (as of now, I don't think there are any other options, ha)
     standardSetup(g, {
         -- Description of the script.  This shows wheen you hit the menu icon at the top left of the game screen.
         description = "Custom DblDubz Stream Game",
+        -- Since all the lua scripting can only be done vs AI at this time, we have to and the difficulty into the setup here.
         ai = createHardAi(),
-        -- Here we set the order that the players go in.  I commented it out to show that you canset it to a specific order, but we are using the randomOrder below so it isn't needed. 
-        --playerOrder = { plid1, plid2 },
+        -- Here we set the order that the players go in. We are using the randomOrder below so it isn't needed, and we will comment this out.
+        playerOrder = { plid1, plid2 },
+        -- This sets the player order to random.
         randomOrder = true,
         -- This sets the players that are part of the game.
         opponents = { { plid1, plid2 } },
@@ -131,12 +35,13 @@ function setupGame(g)
             {
                 -- plid1, plid2, plid3, plid4 are the options, but we are only setting this up as a 2 player game.
                 id = plid1,
-                -- The players name.  if you don't have custom decks you can just use the following to use the setup from the default 
+                -- If you don't have custom health/names/etc you can just use the following to use the setup from the hero selected when starting the game. You can still modify the starting decks if you use that.
                 --[[
                 init = {
                     fromEnv = plid2
                 },
                 ]]
+                -- The player's displayed name.
                 name = "DeebleDoobz",
                 -- The player's avatar
                 avatar = "wolf_shaman",
@@ -165,7 +70,7 @@ function setupGame(g)
 
                     },
                     -- Buffs for the player. 
-                    -- These three are the default and will almost always be all there is. 
+                    -- These three are the default and will almost always be included.
                     buffs = {
                         -- This tells the game to draw a new hand when the current one ends.
                         drawCardsAtTurnEndDef(),
@@ -216,4 +121,103 @@ end
 -- this is needed to end the game, for now this is all we can put here (that I know of).  In the future we should be able to have different win conditions and such. 
 function endGame(g)
 end
+-- Here we create a funcion for the card we want to make.
+function sacrificial_mace_carddef()
+    -- Talk about brackets, parenthesis here.  They can be on the same line or on their own.
+    return createDef({
+            -- Unique id for card, this must be different for each card/function.
+            id = "sacrificial_mace",
+            -- Name displayed on the card
+            name = "Sacrificial Mace",
+            types = {weaponType, noStealType, thiefType, clericType, itemType, magicWeaponType, meleeWeaponType, maceType},
+            acquireCost = 0,
+            -- The next two lines of code make it an item and say that it gets played to the normal play location.
+            cardTypeLabel = "Item",
+            playLocation = castPloc,
+            -- This is where we write the abilities (trigger/effect) for the card.
+            abilities = {
+                createAbility({
+                        --unique id for ability
+                        id = "sacrificial_mace_ab",
+                        -- triggers when played
+                        trigger = autoTrigger,
+                        -- Prompt to select sacrifice (see desc in the effect table)
+                        prompt = showPrompt,
+                        -- Make sure to discuss sequencing here!!!
+                        effect = gainCombatEffect(1).seq(gainGoldEffect(1)).seq(gainHealthEffect(1)).seq(pushTargetedEffect
+                                {
+                                    -- Because this is a pushTargetEffect, this is the text that displays when you choose what card to sacrifice.
+                                    desc = "Sacrifice a card from your hand or discard pile.",
+                                    -- Minimum number of targets.
+                                    min = 0,
+                                    -- Maximum nomber of targets.
+                                    max = 1,
+                                    -- make sure to discuss .union and the different ways to write these locations and that they can't mix.
+                                    -- This code describes what can be targeted by the sacrifice effect.
+                                    validTargets = selectLoc(loc(currentPid,discardPloc)).union(selectLoc(loc(currentPid, handPloc))),
+                                    -- This is the actual sacrifice effect.
+                                    targetEffect = sacrificeTarget(),
+                                 }),
+                            
+                    }),
+                },
+            -- This is the part of the code to do the card layout.
+            layout = createLayout({
+                        -- Card name
+                       name = "Sacrificial Mace",
+                       -- This is the art that appears on the card.
+                       -- There are limited art assets at this time, so unfortunately we will have to use one of those even if it's not what we really want to have here.
+                       art = "art/T_Influence",
+                       -- This is the frame of the card. The artwork around the edges.
+                       frame = "frames/Cleric_CardFrame",
+                       -- This is the text/icon arrangement on the card.  
+                       -- This part is usually a lot of trial and error for me to get it how I want. 
+                       text = '<size=170%><line-height=75%><sprite name=\"combat_1\"> <sprite name=\"gold_1\"><sprite name=\"health_1\"></line-height></size> \n<size=75%><line-height=100%><voffset=1.5em>Sacrifice a card in your \n hand or discard pile.</size></line-height>'
+                }),
+    })
+end
+
+function bless_of_silence_carddef()
+    local cardLayout = createLayout({
+        name = "Bless of Silence",
+        art = "icons/cleric_bless_the_flock",
+        frame = "frames/Cleric_CardFrame",
+        text = "<size=400%><line-height=0%><voffset=-.5em> <pos=-75%><sprite name=\"expend_2\"></size><line-height=100%> \n <voffset=2em><size=100%><pos=10%>Gain <sprite name=\"health_3\">\n Sacrifice a \n card in the \n market row."
+    })
+
+    -- This creates a skill (as opposed to an action or item).  It has things preset so we don't need to the cardTypeLabel/playLocation, those are already defined in the createSkillDef.
+    return createSkillDef({
+        id = "bless_of_silence_skill",
+        name = "Bless of Silence",
+        types = { skillType },
+        -- This refers to the layout we made above.  I don't believe it matters if the layout is done before or after the createSkillDef. As long as it is encapsulated within the carddef it will work.  This is a 'local' variable that is only able to be called within the same function.  It only needs a unique name within the function as opposed to within the script as a whole.
+        layout = cardLayout,
+        -- This is the art for the skill icon next to your player avatar.
+        layoutPath = "icons/cleric_bless_the_flock",
+        abilities = {
+            createAbility({
+                id = "bless_of_silence_ab",
+                -- This trigger requires you to select the skill to use it (as opposed to happening automatically when played) since you don't actually 'play' this card from your hand.
+                trigger = uiTrigger,
+                -- This says that it can only be activated once per turn as opposed to multiple activations.
+                activations = singleActivation,
+                layout = cardLayout,
+                -- The skills effect.  This gains 3 health and sacrifices a card from the market row.
+                effect = gainHealthEffect(3).seq(pushTargetedEffect({
+					desc = "Sacrifice a card in the Market Row.",
+					min = 0,
+					max = 1,
+                    -- Like the targeted effect in the item card we made, this sets the valid target to a card in the market row.
+					validTargets = selectLoc(centerRowLoc),
+					targetEffect = sacrificeTarget(),
+				})),
+                -- This is the cost to use the card. Since it is a skill it costs 2 gold.
+                cost = goldCost(2),
+            }),
+        }
+        
+    })
+end
+
+
 
