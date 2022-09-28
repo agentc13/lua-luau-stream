@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global, redundant-value
 require 'herorealms'
 require 'decks'
 require 'stdlib'
@@ -20,11 +21,11 @@ function setupGame(g)
         players = {
             {
                
-                id = plid1,
-                name = "DeebleDoobz",
-                avatar = "wolf_shaman",
-                health = 55,
-                maxHealth = 55,
+                id =
+                name =
+                avatar =
+                health =
+                maxHealth =
                 cards = {
                     deck = {
                         { qty = , card = },
@@ -97,22 +98,22 @@ function
     return 
             name = 
             types = { },
-            acquireCost = 
+            acquireCost =
             cardTypeLabel = "Item",
             playLocation = castPloc,
             abilities = {
                 createAbility(
                     {
-                        id = 
+                        id =
                         trigger = autoTrigger,
                         prompt = showPrompt,
-                        effect = 
+                        effect =
                                 {
-                                    desc = 
-                                    min = 
-                                    max = 
-                                    validTargets = 
-                                    targetEffect = 
+                                    desc =
+                                    min =
+                                    max =
+                                    validTargets =
+                                    targetEffect =
                                  }),
                             
                     }),
@@ -120,9 +121,9 @@ function
 
             layout = createLayout(
                 {
-                       name = 
-                       art = 
-                       frame = 
+                       name =
+                       art =
+                       frame =
                        text = '<size=170%><line-height=75%><sprite name=\"combat_1\"> <sprite name=\"gold_1\"><sprite name=\"health_1\"></line-height></size> \n<size=75%><line-height=100%><voffset=1.5em>Sacrifice a card in your \n hand or discard pile.</size></line-height>'
                 }),
     })
