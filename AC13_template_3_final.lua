@@ -38,7 +38,7 @@ function setupGame(g)
                 -- If you don't have custom health/names/etc you can just use the following to use the setup from the hero selected when starting the game. You can still modify the starting decks if you use that.
                 --[[
                 init = {
-                    fromEnv = plid2
+                    fromEnv = plid1
                 },
                 ]]
                 -- The player's displayed name.
